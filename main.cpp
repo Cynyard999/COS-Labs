@@ -261,13 +261,23 @@ void getCommands() {
                 continue;
             } else {
                 DirEntry *dirEntry = findFile(filePath);
+                if (dirEntry == nullptr){
+                    continue;
+                }
                 listSubDir(&filePath[0], dirEntry, hasL);
             }
         } else if (splitCommand[0] == "cat") {
             DirEntry *dirEntry = findFile(splitCommand[1]);
-            catFile(dirEntry);
+            if (dirEntry == nullptr){
+                continue;
+            }
+            if (dirEntry->DIR_Attr == 0x10){
+                print(splitCommand[1]+"： Is a directory\n");
+            } else{
+                catFile(dirEntry);
+            }
         } else {
-            print("command not found: " + command + "\n");
+            print("command not found: " + splitCommand[0] + "\n");
         }
     }
 }
@@ -362,6 +372,7 @@ DirEntry *findFile(string &path) {
             break;
         }
     }
+    // 第一层就没有在根目录中找到
     if (!fileExist) {
         print(path + ": No such file or directory\n");
         return nullptr;
