@@ -242,6 +242,10 @@ void getCommands() {
                     continue;
                 } else if (splitCommand[i] == "-l" || splitCommand[i] == "-ll") {
                     hasL = true;
+                } else if(splitCommand[i][0] == '-'){
+                    print("ls: illegal option "+splitCommand[i]+'\n');
+                    wrongCommand = true;
+                    break;
                 } else {
                     if (!hasFilePath) {
                         hasFilePath = true;
