@@ -44,11 +44,24 @@ PUBLIC void task_tty()
 		operation_table[i].operation = -1;
 		operation_table[i].key = '\0';
 	}
-	
+	int t = get_ticks();
 	while (1) {
+		// 3个terminal 每个都read和write
 		for (p_tty=TTY_FIRST;p_tty<TTY_END;p_tty++) {
 			tty_do_read(p_tty);
 			tty_do_write(p_tty);
+		}
+		// 本来有HZ的，但是作者define的HZ是100，有问题，应该是1000？
+		// ((get_ticks() - t) * 1000 / HZ) < milli_sec
+		if (((get_ticks() - t) *1000 / 1000)>20*1000){
+			for (p_tty=TTY_FIRST;p_tty<TTY_END;p_tty++) {
+				// 只有输入状态的时候才刷新
+				if (p_tty->p_console->mode == 0)
+				{
+					clean_console(p_tty->p_console);
+				}
+			}
+			t = get_ticks();
 		}
 	}
 }

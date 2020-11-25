@@ -63,8 +63,9 @@ PUBLIC void init_screen(TTY* p_tty)
 
 	// 初始化操作的链表head
 	OPERATION  *o = get_empty_space_in_op_table();
-	// 头节点唯一标识符2
+	// 头节点唯一标识符 op = 2 key = '\0'
 	o->operation = 2;
+	o->key = '\0';
 	p_tty->p_console->op_stack_head= o;
 	p_tty->p_console->ops_num = 0;
 
@@ -79,9 +80,8 @@ PUBLIC void init_screen(TTY* p_tty)
 	// 	out_char(p_tty->p_console, nr_tty + '0');
 	// 	out_char(p_tty->p_console, '#');
 	// }
-
-	set_cursor(p_tty->p_console->cursor);
 	clean_console(p_tty->p_console);
+	set_cursor(p_tty->p_console->cursor);
 }
 
 
@@ -310,6 +310,7 @@ PUBLIC void clean_console(CONSOLE* p_con) {
 		*(start_vmem+1) = DEFAULT_CHAR_COLOR;
 	}
 	p_con->cursor = p_con->original_addr;
+	flush(p_con);
 }
 
 /*======================================================================*
