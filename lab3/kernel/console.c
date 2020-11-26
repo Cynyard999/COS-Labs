@@ -53,8 +53,6 @@ PUBLIC void init_screen(TTY* p_tty)
 	/* 默认光标位置在最开始处 */
 	p_tty->p_console->cursor = p_tty->p_console->original_addr;
 
-	// 默认上一个光标的位置也在最开始处
-	p_tty->p_console->p_cursor = p_tty->p_console->original_addr;
 
 	// 默认初始的时候是输入状态
 	p_tty->p_console->mode = 0;
@@ -310,7 +308,11 @@ PUBLIC void clean_console(CONSOLE* p_con) {
 		*(start_vmem+1) = DEFAULT_CHAR_COLOR;
 	}
 	p_con->cursor = p_con->original_addr;
-	flush(p_con);
+	// 只有当前console才能刷新光标和vedio位置
+	if (is_current_console(p_con))
+	{
+		flush(p_con);
+	}
 }
 
 /*======================================================================*

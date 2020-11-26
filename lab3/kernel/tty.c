@@ -96,7 +96,11 @@ PUBLIC void in_process(TTY* p_tty, u32 key)
 					undo(p_tty->p_console);
 					break;
 				case ESC:
-					switch_mode(p_tty->p_console);
+					if (p_tty->p_console->mode != 1)
+					{
+						switch_mode(p_tty->p_console);
+						break;
+					}
 					break;
 				case ENTER:
 					if (p_tty->p_console->mode == 1)
