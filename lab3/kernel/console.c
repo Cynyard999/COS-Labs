@@ -54,7 +54,7 @@ PUBLIC void init_screen(TTY* p_tty)
 	p_tty->p_console->cursor = p_tty->p_console->original_addr;
 
 	// 默认上一个光标的位置也在最开始处
-	p_tty->p_console->cursor = p_tty->p_console->original_addr;
+	p_tty->p_console->p_cursor = p_tty->p_console->original_addr;
 
 	// 默认初始的时候是输入状态
 	p_tty->p_console->mode = 0;
@@ -105,14 +105,17 @@ PUBLIC void out_char(CONSOLE* p_con, char ch)
 	case '\n':
 		if (p_con->cursor < p_con->original_addr +
 		    p_con->v_mem_limit - SCREEN_WIDTH) {
-				p_con->p_cursor = p_con->cursor;
+				// 存储改变之前的cursor值
+				int p_cursor = p_con->cursor;
+				// cursor移动到下一行开始
 				p_con->cursor = p_con->original_addr + SCREEN_WIDTH * 
 					((p_con->cursor - p_con->original_addr) /
 					SCREEN_WIDTH + 1);
-				// 把回车当作'\0'填入当前cursor中，然后新的cursor与当前cursor之前填满'\n'
+				// 把回车当作'\0'填入之前的cursor位置
 				*p_vmem++ = '\0';
 				*p_vmem++ = p_con->current_char_color;
-				for (int i = p_con->p_cursor+1; i < p_con->cursor; i++)
+				// 然后填入'\n'，直到当前的cursor
+				for (int i = p_cursor+1; i < p_con->cursor; i++)
 				{
 					*p_vmem++ = '\n';
 					*p_vmem++ = BLACK;
@@ -122,7 +125,6 @@ PUBLIC void out_char(CONSOLE* p_con, char ch)
 		break;
 	case '\b':
 		if (p_con->cursor > p_con->input_start_addr) {
-			p_con->p_cursor = p_con->cursor;
 			if (*(p_vmem-2) == '\n')
 			{
 				int count = 1;
@@ -162,7 +164,6 @@ PUBLIC void out_char(CONSOLE* p_con, char ch)
 				 *p_vmem++ = '\t';
 				 *p_vmem++ = BLACK;
 			}
-			p_con->p_cursor = p_con->cursor;
 			p_con->cursor+=4;
 			push(p_con,0,'\t');
 		}
@@ -172,7 +173,6 @@ PUBLIC void out_char(CONSOLE* p_con, char ch)
 		    p_con->original_addr + p_con->v_mem_limit - 1) {
 			*p_vmem++ = ch;
 			*p_vmem++ = p_con->current_char_color;
-			p_con->p_cursor = p_con->cursor;
 			p_con->cursor++;
 			push(p_con,0,ch);
 		}
